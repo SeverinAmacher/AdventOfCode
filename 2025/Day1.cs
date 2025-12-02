@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-
 const int totalPositions = 100; // positions from 0 to 99
 const int maxPosition = 99;
 var position = 50;
