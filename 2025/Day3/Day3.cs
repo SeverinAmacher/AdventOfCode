@@ -1,14 +1,18 @@
-using var sr = new StreamReader("./trial.txt");
+using var sr = new StreamReader("./day3_input.txt");
 
 var line = sr.ReadLine();
-var maxJoltage = 0;
+long maxJoltage = 0;
 
 while (line is not null)
 {
     Console.WriteLine($"Line: {line}");
-    var add = FindMaxLineJoltage(line);
+    // part 1 Solution
+    // var add = FindMaxLineJoltage(line);
+    // maxJoltage += add;
+    // part 2 Solution
+    var add = FindMaxLineJoltagePart2(line, 0, 11);
+    maxJoltage += Int64.Parse(add);
     Console.WriteLine($"Max Joltage of line: {add}");
-    maxJoltage += add;
     line = sr.ReadLine();
 }
 
@@ -38,4 +42,26 @@ static int FindMaxLineJoltage(string line)
     }
 
     return Int32.Parse($"{highestChar}{secondHighestChar}");
+}
+
+static string FindMaxLineJoltagePart2(string line, int minIndex, int offset)
+{
+    var highestChar = '0';
+    var highestCharIndex = 0;
+
+    for (int currentIndex = minIndex; currentIndex < line.Length - offset; currentIndex++)
+    {
+        if (line[currentIndex] > highestChar)
+        {
+            highestChar = line[currentIndex];
+            highestCharIndex = currentIndex;
+        }
+    }
+
+    if (offset == 0)
+    {
+        return $"{highestChar}";
+    }
+
+    return $"{highestChar}{FindMaxLineJoltagePart2(line, highestCharIndex + 1, offset - 1)}";
 }
