@@ -7,10 +7,10 @@ while (line is not null)
 {
     Console.WriteLine($"Line: {line}");
     // part 1 Solution
-    // var add = FindMaxLineJoltage(line);
+    // var add = FindMaxLineJoltage(line, 0, 1);
     // maxJoltage += add;
     // part 2 Solution
-    var add = FindMaxLineJoltagePart2(line, 0, 11);
+    var add = FindMaxLineJoltage(line, 0, 11);
     maxJoltage += Int64.Parse(add);
     Console.WriteLine($"Max Joltage of line: {add}");
     line = sr.ReadLine();
@@ -18,33 +18,7 @@ while (line is not null)
 
 Console.WriteLine(maxJoltage);
 
-static int FindMaxLineJoltage(string line)
-{
-    var highestChar = '0';
-    var highestCharIndex = 0;
-    var secondHighestChar = '0';
-
-    for (int currentIndex = 0; currentIndex < line.Length - 1; currentIndex++)
-    {
-        if (line[currentIndex] > highestChar)
-        {
-            highestChar = line[currentIndex];
-            highestCharIndex = currentIndex;
-        }
-    }
-
-    for (int currentIndex = highestCharIndex + 1; currentIndex < line.Length; currentIndex++)
-    {
-        if (line[currentIndex] > secondHighestChar)
-        {
-            secondHighestChar = line[currentIndex];
-        }
-    }
-
-    return Int32.Parse($"{highestChar}{secondHighestChar}");
-}
-
-static string FindMaxLineJoltagePart2(string line, int minIndex, int offset)
+static string FindMaxLineJoltage(string line, int minIndex, int offset)
 {
     var highestChar = '0';
     var highestCharIndex = 0;
@@ -63,5 +37,5 @@ static string FindMaxLineJoltagePart2(string line, int minIndex, int offset)
         return $"{highestChar}";
     }
 
-    return $"{highestChar}{FindMaxLineJoltagePart2(line, highestCharIndex + 1, offset - 1)}";
+    return $"{highestChar}{FindMaxLineJoltage(line, highestCharIndex + 1, offset - 1)}";
 }
