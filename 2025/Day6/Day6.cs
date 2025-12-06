@@ -1,43 +1,43 @@
-var lines = File.ReadLines("./day6_input.txt");
-var arr = new string[lines.Count()][];
+using System.Text;
 
-var index = 0;
-foreach (var line in lines)
-{
-    var parts = line.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-    var newArr = new string[parts.Length];
-    var i = 0;
-    foreach (var part in parts)
-    {
-        newArr[i] = part;
-        i++;
-    }
-    // Console.WriteLine($"Line {index}: {string.Join(',', newArr)}");
-    arr[index] = newArr;
-    index++;
-}
+var lines = File.ReadLines("./day6_input.txt").ToArray();
 
-var lastLine = arr[arr.Length - 1];
-var results = new long[lastLine.Length];
-for (int i = 0; i < arr.Length - 1; i++)
+var operations = lines[lines.Length - 1].Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+var results = new long[operations.Length];
+
+var columnIndex = 0;
+for (int index = 0; index < lines[0].Length; index++)
 {
-    for (int j = 0; j < arr[i].Length; j++)
+    var sb = new StringBuilder();
+    for (int j = 0; j < lines.Length - 1; j++)
     {
-        results[j] = lastLine[j] switch
+        if (lines[j][index] != ' ')
         {
-            "+" => results[j] + Int64.Parse(arr[i][j]),
-            "*" => results[j] == 0
-                ? 1 * Int64.Parse(arr[i][j])
-                : results[j] * Int64.Parse(arr[i][j]),
+            sb.Append(lines[j][index]);
+        }
+    }
+    if (sb.Length > 0)
+    {
+        var number = Int64.Parse(sb.ToString());
+        results[columnIndex] = operations[columnIndex] switch
+        {
+            "+" => results[columnIndex] + number,
+            "*" => results[columnIndex] == 0
+                ? 1 * number
+                : results[columnIndex] * number,
             _ => throw new Exception("Invalid Operator"),
         };
-        // Console.WriteLine($"Result {i}, {j}: {results[j]}");
+    }
+    else
+    {
+        columnIndex++;
     }
 }
 
 var grandTotal = 0L;
 for (int i = 0; i < results.Length; i++)
 {
+    Console.WriteLine($"Result Column {i}: {results[i]}");
     grandTotal += results[i];
 }
 
