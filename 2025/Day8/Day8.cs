@@ -6,7 +6,6 @@ var boxes = File.ReadLines("./day8_input.txt").Select(lines =>
     return new JunctionBox(int.Parse(coordinates[0]), int.Parse(coordinates[1]), int.Parse(coordinates[2]));
 })
 .ToArray();
-var totalBoxCount = boxes.Length;
 
 var allDistances = new PriorityQueue<BoxDistance, double>();
 
@@ -27,8 +26,7 @@ var finalResult = 0L;
 
 while (allDistances.TryDequeue(out var closestDistance, out var distance))
 {
-    Console.WriteLine($"{closestDistance.Box1.GetJunctionBoxString()}");
-    Console.WriteLine($"{closestDistance.Box2.GetJunctionBoxString()}");
+    var modifiedCircuitBoxCount = 0;
     var box1AlreadyInCircuit = usedBoxesWithIndex.TryGetValue(closestDistance.Box1.GetJunctionBoxString(), out var indexBox1);
     var box2AlreadyInCircuit = usedBoxesWithIndex.TryGetValue(closestDistance.Box2.GetJunctionBoxString(), out var indexBox2);
     if (box1AlreadyInCircuit && box2AlreadyInCircuit)
@@ -42,58 +40,44 @@ while (allDistances.TryDequeue(out var closestDistance, out var distance))
                 usedBoxesWithIndex[junctionBox.GetJunctionBoxString()] = indexBox1;
             }
             circuitSizes[indexBox2] = new List<JunctionBox>();
-
-            if (circuitSizes[indexBox1].Count() >= totalBoxCount)
-            {
-                Console.WriteLine($"Broke, multiplying: {closestDistance.Box1.CoordinateX} and {closestDistance.Box2.CoordinateX}");
-                finalResult = (long)closestDistance.Box1.CoordinateX * (long)closestDistance.Box2.CoordinateX;
-                break;
-            }
+            modifiedCircuitBoxCount = circuitSizes[indexBox1].Count();
         }
     }
     else if (box1AlreadyInCircuit)
     {
         circuitSizes[indexBox1].Add(closestDistance.Box2);
         usedBoxesWithIndex.Add(closestDistance.Box2.GetJunctionBoxString(), indexBox1);
-        if (circuitSizes[indexBox1].Count() >= totalBoxCount)
-        {
-            Console.WriteLine($"Broke, multiplying: {closestDistance.Box1.CoordinateX} and {closestDistance.Box2.CoordinateX}");
-            finalResult = (long)closestDistance.Box1.CoordinateX * (long)closestDistance.Box2.CoordinateX;
-            break;
-        }
+        modifiedCircuitBoxCount = circuitSizes[indexBox1].Count();
     }
     else if (box2AlreadyInCircuit)
     {
         circuitSizes[indexBox2].Add(closestDistance.Box1);
         usedBoxesWithIndex.Add(closestDistance.Box1.GetJunctionBoxString(), indexBox2);
-        if (circuitSizes[indexBox2].Count() >= totalBoxCount)
-        {
-            Console.WriteLine($"Broke, multiplying: {closestDistance.Box1.CoordinateX} and {closestDistance.Box2.CoordinateX}");
-            finalResult = (long)closestDistance.Box1.CoordinateX * (long)closestDistance.Box2.CoordinateX;
-            break;
-        }
+        modifiedCircuitBoxCount = circuitSizes[indexBox2].Count();
     }
     else
     {
         circuitSizes[currentCapacityIndex] = new List<JunctionBox>();
-        circuitSizes[currentCapacityIndex].Add(closestDistance.Box1);
-        circuitSizes[currentCapacityIndex].Add(closestDistance.Box2);
+        circuitSizes[currentCapacityIndex].AddRange([closestDistance.Box1, closestDistance.Box2]);
         usedBoxesWithIndex.Add(closestDistance.Box1.GetJunctionBoxString(), currentCapacityIndex);
         usedBoxesWithIndex.Add(closestDistance.Box2.GetJunctionBoxString(), currentCapacityIndex);
-        if (circuitSizes[currentCapacityIndex].Count() >= totalBoxCount)
-        {
-            Console.WriteLine($"Broke, multiplying: {closestDistance.Box1.CoordinateX} and {closestDistance.Box2.CoordinateX}");
-            finalResult = (long)closestDistance.Box1.CoordinateX * (long)closestDistance.Box2.CoordinateX;
-            break;
-        }
+        modifiedCircuitBoxCount = circuitSizes[currentCapacityIndex].Count();
         currentCapacityIndex++;
         if (currentCapacityIndex % CAPACITY == 0)
         {
             Array.Resize(ref circuitSizes, circuitSizes.Length + CAPACITY);
         }
     }
+
+    if (modifiedCircuitBoxCount >= boxes.Length)
+    {
+        finalResult = (long)closestDistance.Box1.CoordinateX * (long)closestDistance.Box2.CoordinateX;
+        break;
+    }
 }
 
+
+#region Not used in Part 2
 var biggest = 0;
 var secondBiggest = 0;
 var thirdBiggest = 0;
@@ -104,7 +88,6 @@ for (int i = 0; i < currentCapacityIndex; i++)
     {
         break;
     }
-    Console.WriteLine($"Size: {circuitSizes[i].Count()}");
     if (circuitSizes[i].Count() > biggest)
     {
         thirdBiggest = secondBiggest;
@@ -124,6 +107,8 @@ for (int i = 0; i < currentCapacityIndex; i++)
 
 var result = biggest * secondBiggest * thirdBiggest;
 Console.WriteLine($"{biggest}, {secondBiggest}, {thirdBiggest} = {result}");
+#endregion
+
 Console.WriteLine(finalResult);
 
 static double GetEuclideanDistance(JunctionBox box1, JunctionBox box2)
